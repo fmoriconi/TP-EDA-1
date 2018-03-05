@@ -7,6 +7,7 @@ int parseCmdLine(int argc, char *argv[], pCallback p, void *userData); //Devuelv
 
 int parseCallback(char *key, char *value, void *userData); //Devuelve 1 si la interpretación es correcta y 0 si no lo es.
 
+//hola
 
 typedef struct {
 	char key[10];

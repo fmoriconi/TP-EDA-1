@@ -94,7 +94,7 @@ int main (int argc, char * argv[])
     
     if(quantity > -1)
     {
-        printf("All options/parameters are valid. Number of valid options/parameters: %d", quantity);
+        printf("All options/parameters are valid. Number of valid options/parameters: %d \n", quantity);
     }
     else
     {

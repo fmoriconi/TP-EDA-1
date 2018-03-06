@@ -1,53 +1,31 @@
+/*  EDA_TPn1
+	Grupo n°4
+	
+	Integrantes:
+				FRANCO LEON MORICONI
+				FRANCISCO MUSICH
+				GUIDO MARTIN PANAGGIO VENERANDI
+				FRANCISCO MARTIN TOLABA
+				
+	En este programa se solicitó hacer un parseo de datos ingresados con un banco de pruebas
+	se prueba la función parsecmdl simulando mediante una matriz los datos que se ingresarían
+	por linea de comandos.
+	Dicha función utiliza un callback para la validación de los datos mediante la comparación
+	y búsqueda en una estructura donde se encuentran preestablecidos.
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include "parseCmdLine.h"
-
-#define PROGRAMNAME "parseprog"
-#define NUM_TESTS 9
-#define MAX_TEST 10
-#define CANTIDAD_OPCIONES 3
-#define CANTIDAD_VALORES 3
-#define CANTIDAD_PARAMETROS 3
-#define SIZE_VALORES 15
-
-int parseCallback(char *key, char *value, void *userData); //Devuelve 1 si la interpretación es correcta y 0 si no lo es.
-
-char* strlwr(char str[]); //tranforma un string a lowercase
-
-
-
-
-//Parametros takehome, forhere, napkin
-//Opciones food: pizza, burger, pasta // beverage: coke, water,sprite // size: small, medium, big
-
-/**********************
-*	Estructura Option
-	Consiste en un arreglo de char en el cual entrara la clave.
-	Luego un arreglo de punteros a char, que estos seran los posibles valores para esta clave.
-	Estos valores deben asignarse antes de compilar
-***********************/
-typedef struct {
-	char clave[10];
-	char * valores[CANTIDAD_VALORES]; //En caso de que haya opciones con cantidad de valores distinta, llenarla con algo invalido asi la copmaracion no se cumple
-} option_t;
-/*********************
-*	Estructura userdata
-	Contiene un arreglo de option_t dentro de donde iran todas las posibles opciones (con sus claves y valores correspondientes).
-	Tambien contiene un arreglo de punteros a char, que seran los punteros a los strings para los parametros.
-**********************/
-typedef struct {
-	option_t opciones[CANTIDAD_OPCIONES];
-	
-	char *parametros[CANTIDAD_PARAMETROS]; // Los creo como punteros a char, ya que asumo que los strings se van a guardar en ROM
-
-} userdata_t;
+#include "general.h"
 
 int main (int argc, char * argv[])
 {
-	// Testing Bench
-	// 
 	userdata_t valEstablecidos;
 
+	//Parametros takehome, forhere, napkin
+	//Opciones food: pizza, burger, pasta // beverage: coke, water,sprite // size: small, medium, big
+	
 	strcpy(valEstablecidos.opciones[0].clave, "food");
 	strcpy(valEstablecidos.opciones[0].valores[0], "pizza");
 	strcpy(valEstablecidos.opciones[0].valores[1], "burguer");
@@ -63,22 +41,25 @@ int main (int argc, char * argv[])
 	strcpy(valEstablecidos.parametros[0], "takehome");
 	strcpy(valEstablecidos.parametros[1], "forhere");
 	strcpy(valEstablecidos.parametros[2], "napkin");
+
+	// Testing Bench
+	// 	
 	
-	char * attempts[NUM_TESTS][9]= {{PROGRAMNAME, "-clothes", "trouser" , NULL }, // unexist option and value
+	char * attempts[NUM_TESTS][MAX_TEST]= {{PROGRAMNAME, "-clothes", "trouser" , NULL }, // unexist option and value
 						 {PROGRAMNAME, "shop", NULL }, // unexist parameter
 						 {PROGRAMNAME, "-food", NULL }, // non-value for the option
 						 {PROGRAMNAME, "-food", "salad" , NULL }, // unknown value
 						 {PROGRAMNAME, "-food", "salad", "shop" , NULL }, // option is well but the parameter does not exist
 						 {PROGRAMNAME, "-food", "pasta", "-beverage", "water", "forhere", "napkin", "-size", NULL }, //non-value for size option
 						 {PROGRAMNAME, "-food", "pasta", "-beverage", "water", "forhere", "napkin", "-size", "big" , NULL }, // good try
-						 {PROGRAMNAME, "-food", "burger", "-beverage", "coke", "takehome", "napkin", "-size", "small" , NULL }, // good try
+						 {PROGRAMNAME, "-Food", "Burger", "-beverage", "coke", "takehome", "napkin", "-size", "small" , NULL }, // good try with uppercase
 						 {PROGRAMNAME, "-food", "pizza", "-beverage", "water", "forhere", NULL } // good try
 						};
 	int i;
 	int quantity;
     for (i = 0; i < NUM_TESTS; i++)
 	{
-		quantity = parseCmdLine(argc, argv,&parseCallback, &valEstablecidos);
+		quantity = parseCmdLine(NUM_TEST, attempts ,&parseCallback, &valEstablecidos);
 		
 		if(quantity > -1)
 		{
@@ -93,18 +74,17 @@ int main (int argc, char * argv[])
 	getchar();
 	return 0;
 }
-/***********************************
-	Funcion parseCallback
-************************************/
-/*  Esta funcion recibe 3 parametros, key y value corrsponden a los strings a analizar,
-	y userData es un pasaje por referencia de una estructura en la cual se encuentran las posibles opciones y parametros validos.
-	La funcion trabaja comparando los strings recibidos con aquellos encontrados en la estructura.
-*/
-int parseCallback(char *key, char *value, void *userData) {
 
-	userdata_t * data = (userdata_t*)userData; //Esto es medio redundante, lo sé, pero visual studio no me dejaba desreferenciarlo bien si no lo hacía. (creo que esta bien por que hay que castear el puntero ese que es void, hay que decirle que es la estructura que creamos)
+/***********************************
+	Función parseCallback
+************************************/
+
+int parseCallback(char *key, char *value, void *userData)
+{
+
+	userdata_t * data = (userdata_t*)userData; //Esto es medio redundante, pero visual studio no me dejaba desreferenciarlo bien si no lo hacía. (creo que esta bien por que hay que castear el puntero ese que es void, hay que decirle que es la estructura que creamos)
 	int validez; //Respuesta del callback
-	if (key == NULL) // Analizo parametros
+	if (key == NULL) // Analizo parámetros
 	{
 		int i;
 		int cerrarBucle = 0;
@@ -125,9 +105,10 @@ int parseCallback(char *key, char *value, void *userData) {
 	{
 		int i, j;
 		int cerrarBucle;
+		char * optionkey = &(key[1]); // para no tomar con el strcmp el OPTION_IDENTIFIER
 		for (i = 0; (i < CANTIDAD_OPCIONES) && (cerrarBucle == 0); i++) //ciclo el arreglo de opciones hasta hayar la clave igual
 		{
-			if (!(strcmp(strlwr(key), data->opciones[i].clave)))
+			if (!(strcmp(strlwr(optionkey), data->opciones[i].clave)))
 			{
 				for (j = 0; (j < CANTIDAD_VALORES) && (cerrarBucle == 0);j++)// cuando la encuentro analizo posibles valores dentro de esa opcion, en el arreglo de valores
 				{
@@ -148,6 +129,10 @@ int parseCallback(char *key, char *value, void *userData) {
 
 	return validez;
 }
+
+/***********************************
+	Función strlwr
+************************************/
 
 char* strlwr(char str[])
 { 

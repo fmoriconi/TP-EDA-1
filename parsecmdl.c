@@ -8,7 +8,7 @@ int parseCmdLine(int argc, char *argv[], pCallback p, void *userData)
 
 	for (int i = 1; i <= argc && abort != true; i++)
 	{
-		if (*argv[i] == '-')
+		if (*argv[i] == OPTION_IDENTIFIER)
 		{
 			if (parseCallback(argv[i], argv[i + 1], userData) == 1)
 			{
@@ -32,8 +32,9 @@ int parseCmdLine(int argc, char *argv[], pCallback p, void *userData)
 		}
 	}
 	
-	if (abort == true) {
-		vacounter = -1;
+	if (abort == true)
+	{
+		vacounter = ERRORPARSE;
 	}
 	return vacounter;
 }

@@ -42,7 +42,24 @@ int main (void)
 {
 	// Testing Bench
 	// 
-	userdata_t valEstablecidos = { {"food"} {"pizza"} {"burguer"} {"pasta"} {"beverage"} {"coke"} {"water"} {"sprite"} {"size"} {"small"} {"medium"} {"big"} {"takehome"} {"forhere"} {"napkin"} }
+	userdata_t valEstablecidos;
+
+	strcpy(valEstablecidos.opciones[0].clave, "food");
+	strcpy(valEstablecidos.opciones[0].valores[0], "pizza");
+	strcpy(valEstablecidos.opciones[0].valores[1], "burguer");
+	strcpy(valEstablecidos.opciones[0].valores[2], "pasta");
+	strcpy(valEstablecidos.opciones[1].clave, "beverage");
+	strcpy(valEstablecidos.opciones[1].valores[0], "coke");
+	strcpy(valEstablecidos.opciones[1].valores[1], "water");
+	strcpy(valEstablecidos.opciones[1].valores[2], "sprite");
+	strcpy(valEstablecidos.opciones[2].clave, "size");
+	strcpy(valEstablecidos.opciones[2].valores[0], "small");
+	strcpy(valEstablecidos.opciones[2].valores[1], "medium");
+	strcpy(valEstablecidos.opciones[2].valores[2], "big");
+	strcpy(valEstablecidos.parametros[0], "takehome");
+	strcpy(valEstablecidos.parametros[1], "forhere");
+	strcpy(valEstablecidos.parametros[2], "napkin");
+	
 	char *attempts[NUM_TESTS][]= {{PROGRAMNAME, "-clothes", "trouser" , NULL } // unexist option and value
 						 {PROGRAMNAME, "shop", NULL } // unexist parameter
 						 {PROGRAMNAME, "-food", NULL } // non-value for the option

@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include "parseCmdLine.h"
 
 #define PROGRAMNAME "parseprog"
 #define NUM_TESTS 9
@@ -6,9 +8,12 @@
 #define CANTIDAD_OPCIONES 3
 #define CANTIDAD_VALORES 3
 #define CANTIDAD_PARAMETROS 3
-#define TAMAÑO_VALORES 15
+#define SIZE_VALORES 15
 
 int parseCallback(char *key, char *value, void *userData); //Devuelve 1 si la interpretación es correcta y 0 si no lo es.
+
+char* strlwr(char str[]); //tranforma un string a lowercase
+
 
 
 
@@ -37,26 +42,26 @@ typedef struct {
 
 } userdata_t;
 
-int main (void)
+int main (int argc, char * argv[])
 {
 	// Testing Bench
 	// 
-	userdata_t valEstablecidos = { {"food"} {"pizza"} {"burguer"} {"pasta"} {"beverage"} {"coke"} {"water"} {"sprite"} {"size"} {"small"} {"medium"} {"big"} {"takehome"} {"forhere"} {"napkin"} }
-	char *attempts[NUM_TESTS][]= {{PROGRAMNAME, "-clothes", "trouser" , NULL } // unexist option and value
-						 {PROGRAMNAME, "shop", NULL } // unexist parameter
-						 {PROGRAMNAME, "-food", NULL } // non-value for the option
-						 {PROGRAMNAME, "-food", "salad" , NULL } // unknown value
-						 {PROGRAMNAME, "-food", "salad", "shop" , NULL } // option is well but the parameter does not exist
-						 {PROGRAMNAME, "-food", "pasta", "-beverage", "water", "forhere", "napkin", "-size", NULL } //non-value for size option
-						 {PROGRAMNAME, "-food", "pasta", "-beverage", "water", "forhere", "napkin", "-size", "big" , NULL } // good try
-						 {PROGRAMNAME, "-food", "burger", "-beverage", "coke", "takehome", "napkin", "-size", "small" , NULL } // good try
+	userdata_t valEstablecidos = {NULL};
+	char * attempts[NUM_TESTS][9]= {{PROGRAMNAME, "-clothes", "trouser" , NULL }, // unexist option and value
+						 {PROGRAMNAME, "shop", NULL }, // unexist parameter
+						 {PROGRAMNAME, "-food", NULL }, // non-value for the option
+						 {PROGRAMNAME, "-food", "salad" , NULL }, // unknown value
+						 {PROGRAMNAME, "-food", "salad", "shop" , NULL }, // option is well but the parameter does not exist
+						 {PROGRAMNAME, "-food", "pasta", "-beverage", "water", "forhere", "napkin", "-size", NULL }, //non-value for size option
+						 {PROGRAMNAME, "-food", "pasta", "-beverage", "water", "forhere", "napkin", "-size", "big" , NULL }, // good try
+						 {PROGRAMNAME, "-food", "burger", "-beverage", "coke", "takehome", "napkin", "-size", "small" , NULL }, // good try
 						 {PROGRAMNAME, "-food", "pizza", "-beverage", "water", "forhere", NULL } // good try
 						};
 	int i;
 	int quantity;
     for (i = 0; i < NUM_TESTS; i++)
 	{
-		quantity = parseCmdLine(,,,);
+		quantity = parseCmdLine(argc, argv,&parseCallback, &valEstablecidos);
 		
 		if(quantity > -1)
 		{
@@ -88,7 +93,7 @@ int parseCallback(char *key, char *value, void *userData) {
 		int cerrarBucle = 0;
 		for (i = 0; (i < CANTIDAD_PARAMETROS)&&(cerrarBucle == 0); i++) //Ciclo el arreglo de parametros para buscar cual coincide
 		{
-			if(!(strcmp(strupr(value), strupr(data->parametros[i])))) // analizo si el string en el arreglo de parametros es igual al enviado por el parser
+			if(!(strcmp(strlwr(value), data->parametros[i]))) // analizo si el string en el arreglo de parametros es igual al enviado por el parser
 			{
 				cerrarBucle = 1;  // Paro el ciclado
 				validez = 1; //responde que los parametros son validos
@@ -105,11 +110,11 @@ int parseCallback(char *key, char *value, void *userData) {
 		int cerrarBucle;
 		for (i = 0; (i < CANTIDAD_OPCIONES) && (cerrarBucle == 0); i++) //ciclo el arreglo de opciones hasta hayar la clave igual
 		{
-			if (!(strcmp(strupr(key), strupr(data->opciones[i].clave))))
+			if (!(strcmp(strlwr(key), data->opciones[i].clave)))
 			{
 				for (j = 0; (j < CANTIDAD_VALORES) && (cerrarBucle == 0);j++)// cuando la encuentro analizo posibles valores dentro de esa opcion, en el arreglo de valores
 				{
-					if (!strcmp(strupr(value), strupr(data->opciones[i].valores[j]))) //si se encuentra un valor valido entonces se cierra el loop y se responde un 1
+					if (!strcmp(strlwr(value), data->opciones[i].valores[j])) //si se encuentra un valor valido entonces se cierra el loop y se responde un 1
 					{
 						    validez =1;
 							cerrarBucle =1;
@@ -126,3 +131,16 @@ int parseCallback(char *key, char *value, void *userData) {
 
 	return validez;
 }
+
+char* strlwr(char str[])
+{ 
+      int i = 0; 
+
+      while(str[i] != '\0') 
+      { 
+                   if(str[i] >= 'A' && str[i] <= 'Z') 
+                   str[i] = str[i] + ('a' - 'A'); 
+                   i++; 
+      }
+      return str;
+} 

@@ -11,7 +11,7 @@ int parseCmdLine(int argc, char *argv[], pCallback parseCallback, void *userData
 	{
 		if (*argv[i] == '-')
 		{
-			if (parseCallback(argv[i], argv[i + 1], userData) == 1)
+			if (parseCallback(argv[i]+1, argv[i + 1], userData) == 1)
 			{
 				vacounter++;
 			}
